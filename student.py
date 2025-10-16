@@ -118,9 +118,9 @@ class SubjectController():
                         continue
                 self.change_password(old,new)
             elif input.lower() == 'e':# enrol
-                pass
+                self.enrol()
             elif input.lower() == 'r':# remove
-                pass
+                self.remove()
             elif input.lower() == 's':# show
                 self.show_subjects()
             elif input.lower() == 'x':
@@ -128,7 +128,30 @@ class SubjectController():
                 break
             else:
                 print("Invalid input")
-                
+    def enrol(self):
+        subid = input("Subject ID: ")
+        if subid == '':
+            print("Enrol cancelled")
+            return
+        try:
+            self.student.enrol(subid)
+        except ValueError as ve:
+            print(ve)
+        else:
+            # save student data
+            print(f"Enrolled in {subid} successfully")
+    def remove(self):
+        subid = input("Subject ID: ")
+        if subid == '':
+            print("Drop cancelled")
+            return
+        try:
+            self.student.drop(subid)
+        except ValueError as ve:
+            print(ve)
+        else:
+            # save student data
+            print(f"Dropped {subid} successfully")
     def show_subjects(self):
         print(f'showing {len(self.student.subjects)} subjects')
         for subject in self.student.subjects.values():
@@ -139,5 +162,6 @@ class SubjectController():
         except ValueError as ve:
             print(ve)
         else:
+            # save student data
             print("Password changed successfully")
     
