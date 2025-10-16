@@ -8,7 +8,7 @@ class Student():
         self.name=name
         self.email=email
         self.password=password
-        self.subjects={}
+        self.subjects={}# {subid: Subject}
 
     def __str__(self):
         return self.name
@@ -59,8 +59,8 @@ class Subject():
             return 'F'
 
 class StudentController():
-    def __init__(self) -> None:
-        pass
+    def __init__(self,db) -> None:
+        self.db = db
     def menu(self):
         while True:
             input = input('\tStudent System (l/r/x):')
@@ -83,7 +83,7 @@ class StudentController():
                 if re.fullmatch(r'^[A-Z][A-Za-z0-9._-]+[0-9]{3}$',password) and len(password)>=5:
                     # if database.check(email,password):
                     #   return student
-                    # SubjectController(student).menu()
+                    # SubjectController(self.db,student).menu()
                     # else:
                     print('Student does not exist')
                     break
@@ -101,7 +101,8 @@ class StudentController():
             print("Email or password invalid")
 
 class SubjectController():
-    def __init__(self,student:Student) -> None:
+    def __init__(self,db,student:Student) -> None:
+        self.db = db
         self.student = student
     def menu(self):
         while True:
@@ -145,6 +146,10 @@ class SubjectController():
         if subid == '':
             print("Drop cancelled")
             return
+        if 0>int(subid) or int(subid)>999:
+            print("Subject ID invalid")
+            return
+        subid = subid.zfill(3)
         try:
             self.student.drop(subid)
         except ValueError as ve:
