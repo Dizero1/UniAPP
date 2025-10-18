@@ -1,3 +1,9 @@
-
+import student
+import data_manager
 if __name__ == "__main__":
-    print("This is the main module.")
+    while True:
+        input_ = input("xxx")
+        if input_.lower() == 'x':
+            break
+        else:
+            print("Invalid input")

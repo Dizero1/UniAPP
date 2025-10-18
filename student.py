@@ -3,16 +3,18 @@ import re
 class Student():
     MAX_SUB=4
 
-    def __init__(self,id,name,email,password):
+    def __init__(self,id:str,name:str,email:str,password:str):
         self.id=id
         self.name=name
         self.email=email
         self.password=password
-        self.subjects={}# {subid: Subject}
+        self.subjects:dict[str,Subject]={}# {subid: Subject}
 
     def __str__(self):
         return self.name
     def enrol(self,subid):# max 4 subj
+        if not subid.isdigit() or len(subid)!=3:
+            raise ValueError("Subject ID invalid")
         if len(self.subjects)>=Student.MAX_SUB:
             raise ValueError("Max subjects reached")
         if subid in self.subjects:
@@ -35,14 +37,16 @@ class Student():
         else:
             return True
     def change_password(self,old,new):
-        if self.password!=old:
+        if self.check_password(old)==False:
             raise ValueError("Old password incorrect")
         self.password=new
+    def change_name(self,newname):
+        self.name=newname
     def check_password(self,password):
         return self.password==password
             
 class Subject():
-    def __init__(self,id,mark:int):
+    def __init__(self,id:str,mark:int):
         self.id=id
         self.mark=mark
         self.grade=self.get_grade()
@@ -58,17 +62,17 @@ class Subject():
         else:
             return 'F'
 
-class StudentController():
+class StudentController():# login/register
     def __init__(self,db) -> None:
         self.db = db
     def menu(self):
         while True:
-            input = input('\tStudent System (l/r/x):')
-            if input.lower() == 'l':
+            input_ = input('\tStudent System (l/r/x):')
+            if input_.lower() == 'l':
                 self.login()
-            elif input.lower() == 'r':
+            elif input_.lower() == 'r':
                 self.register()
-            elif input.lower() == 'x':
+            elif input_.lower() == 'x':
                 break
             else:
                 print("Invalid input")
@@ -81,11 +85,11 @@ class StudentController():
                 break
             if re.fullmatch(r'^[A-Za-z0-9._-]+@university.com$',email):
                 if re.fullmatch(r'^[A-Z][A-Za-z0-9._-]+[0-9]{3}$',password) and len(password)>=5:
-                    # if database.check(email,password):
-                    #   return student
-                    # SubjectController(self.db,student).menu()
-                    # else:
-                    print('Student does not exist')
+                    try:
+                        student = self.db.login(email,password)
+                        SubjectController(self.db,student).menu()
+                    except ValueError as ve:
+                        print(ve)
                     break
             print("Email or password invalid")
     def register(self):
@@ -96,18 +100,19 @@ class StudentController():
                 break
             if re.fullmatch(r'^[A-Za-z0-9._-]+@university.com$',email):
                 if re.fullmatch(r'^[A-Z][A-Za-z0-9._-]+[0-9]{3}$',password) and len(password)>=5:
-                    # database.register(email,password)
+                    student = self.db.register(email.split('@')[0],email,password)
+                    SubjectController(self.db,student).menu()
                     break
             print("Email or password invalid")
 
-class SubjectController():
+class SubjectController():# enrol/drop/show/change password
     def __init__(self,db,student:Student) -> None:
         self.db = db
         self.student = student
     def menu(self):
         while True:
-            input = input('\t\tStudent Course System (c/e/r/s/x):')
-            if input.lower() == 'c': # change
+            input_ = input('\t\tStudent Course System (c/e/r/s/x):')
+            if input_.lower() == 'c': # change
                 old = input("Old password: ")
                 new = input("New password: ")
                 if old == '' or new == '':
@@ -115,17 +120,17 @@ class SubjectController():
                     continue
                 if re.fullmatch(r'^[A-Z][A-Za-z0-9._-]+[0-9]{3}$',new) and len(new)>=5:
                     if re.fullmatch(r'^[A-Z][A-Za-z0-9._-]+[0-9]{3}$',new) and len(new)>=5:
-                        print('password valid')
+                        self.change_password(old,new)
                         continue
-                self.change_password(old,new)
-            elif input.lower() == 'e':# enrol
+                print('password invalid')
+            elif input_.lower() == 'e':# enrol
                 self.enrol()
-            elif input.lower() == 'r':# remove
+            elif input_.lower() == 'r':# remove
                 self.remove()
-            elif input.lower() == 's':# show
+            elif input_.lower() == 's':# show
                 self.show_subjects()
-            elif input.lower() == 'x':
-                # save student data
+            elif input_.lower() == 'x':
+                self.db.datasave(self.student)
                 break
             else:
                 print("Invalid input")
@@ -134,28 +139,29 @@ class SubjectController():
         if subid == '':
             print("Enrol cancelled")
             return
+        subid = subid.zfill(3)
         try:
             self.student.enrol(subid)
         except ValueError as ve:
             print(ve)
         else:
-            # save student data
+            self.db.datasave(self.student)
             print(f"Enrolled in {subid} successfully")
     def remove(self):
         subid = input("Subject ID: ")
         if subid == '':
             print("Drop cancelled")
             return
-        if 0>int(subid) or int(subid)>999:
+        subid = subid.zfill(3)
+        if not subid.isdigit() or len(subid)!=3:
             print("Subject ID invalid")
             return
-        subid = subid.zfill(3)
         try:
             self.student.drop(subid)
         except ValueError as ve:
             print(ve)
         else:
-            # save student data
+            self.db.datasave(self.student)
             print(f"Dropped {subid} successfully")
     def show_subjects(self):
         print(f'showing {len(self.student.subjects)} subjects')
@@ -167,6 +173,19 @@ class SubjectController():
         except ValueError as ve:
             print(ve)
         else:
-            # save student data
+            self.db.datasave(self.student)
             print("Password changed successfully")
     
+if __name__ == "__main__":
+    from data_manager import Database
+    print("!!!Student Module Runable Test!!!")
+    db = Database()
+    sc = StudentController(db)
+    email = 'abc@university.com'
+    password = 'Pass123'
+    try:
+            student = db.login(email,password)
+            SubjectController(db,student).menu()
+    except ValueError as ve:
+            print(ve)
+    sc.menu()
