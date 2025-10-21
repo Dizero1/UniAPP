@@ -12,7 +12,7 @@ class Student():
 
     def __str__(self):
         return self.name
-    def enrol(self,subid):# max 4 subj
+    def enrol(self, subid):# max 4 subj
         if not subid.isdigit() or len(subid)!=3:
             raise ValueError("Subject ID invalid")
         if len(self.subjects)>=Student.MAX_SUB:
@@ -22,6 +22,8 @@ class Student():
         mark = int(min(100, max(25, random.gauss(62.5, 15))))
         self.subjects[subid]=(Subject(subid,mark))
     def drop(self, subid):  # check if in subjects
+        if not subid.isdigit() or len(subid)!=3:
+            raise ValueError("Subject ID invalid")
         try:
             del self.subjects[subid]
         except KeyError:
