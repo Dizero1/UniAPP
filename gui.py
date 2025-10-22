@@ -25,10 +25,10 @@ class GUIUniApp:
         tk.Label(self.master, text="Email:").pack()
         self.email_entry = tk.Entry(self.master, width=30)
         self.email_entry.pack()
-
         tk.Label(self.master, text="Password:").pack()
         self.password_entry = tk.Entry(self.master, show="*", width=30)
         self.password_entry.pack()
+        self.password_entry.bind("<Return>", lambda event: self.login())
 
         tk.Button(self.master, text="Login", command=self.login).pack(pady=10)
 
