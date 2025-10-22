@@ -53,14 +53,14 @@ class Subject():
         self.mark=mark
         self.grade=self.get_grade()
     def get_grade(self)-> str:
-        if self.mark>=90:
-            return 'A'
-        elif self.mark>=80:
-            return 'B'
-        elif self.mark>=70:
-            return 'C'
-        elif self.mark>=60:
+        if self.mark>=85:
+            return 'HD'
+        elif self.mark>=75:
             return 'D'
+        elif self.mark>=65:
+            return 'C'
+        elif self.mark>=50:
+            return 'P'
         else:
             return 'F'
 
