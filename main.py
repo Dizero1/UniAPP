@@ -1,9 +1,6 @@
 import student
 from data_manager import Database
 import admin
-import admin
-print("Loaded admin from:", getattr(admin, "__file__", "?"))
-print("has AdminController:", hasattr(admin, "AdminController"))
 
 def menu():
     while True:
@@ -15,10 +12,10 @@ def menu():
             db = Database()
             student.StudentController(db).menu()
         elif input_.lower() == 'x':
-            print("Thank you")
+            print("\033[93mThank you\033[0m")
             break
         else:
-            print("Invalid input")
+            print("\033[91mInvalid input\033[0m")
 
 if __name__ == "__main__":
     menu()
