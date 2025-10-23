@@ -32,6 +32,7 @@ class StudentController():# login/register
                 cprint("Invalid input",'r')
 
     def login(self):
+        cprint("Student Login",'g')
         while True:
             email = input("Email: ")
             password = input("Password: ")
