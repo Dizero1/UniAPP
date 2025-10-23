@@ -11,7 +11,7 @@ PASSWORD_REGEX = r'^[A-Z][A-Za-z]{4,}[0-9]{3,}$'
 from data import Database, Student
 # ---------- Main GUI Controller ----------
 class GUIUniApp:
-    def __init__(self, master,db: Database):
+    def __init__(self, master:tk.Tk,db: Database):
         self.master = master
         self.db = db
         db.load()
