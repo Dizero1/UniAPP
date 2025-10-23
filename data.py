@@ -115,8 +115,12 @@ class Database():
     def check_student_exists(self,email:str)-> bool:
         return any(info['email']==email for info in self.data.values())
     def ruid(self):
+        counter = 0
         while True:
             num = random.randint(1, 999999)
             uid = str(num).zfill(6)
+            counter += 1
+            if counter > 100000:
+                raise RuntimeError("Failed to generate unique ID")
             if uid not in self.data:
                 return uid
