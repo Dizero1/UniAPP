@@ -106,7 +106,7 @@ class Database():
                 return student
         raise ValueError("Email or password not correct")
     def register(self,name:str,email:str,password:str)->Student: # return Student
-        if any(info['email']==email for info in self.data.values()):
+        if self.check_student_exists(email):
             raise ValueError("Email already registered")
         id = self.ruid()
         self.data[id]={'name':name,'email':email,'password':password,'subjects':{}}

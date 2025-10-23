@@ -37,7 +37,7 @@ class StudentController():# login/register
             password = input("Password: ")
             if email == '' or password == '':
                 cprint("Login cancelled",'y')
-                return
+                break
             email_ok = re.fullmatch(EMAIL_REGEX, email)
             pwd_ok = re.fullmatch(PASSWORD_REGEX, password)
             if not email_ok or not pwd_ok:
@@ -45,9 +45,12 @@ class StudentController():# login/register
                 continue
             try:
                 student = self.db.login(email,password)
-                SubjectController(self.db,student).menu()
             except ValueError as ve:
                 cprint(ve,'r')
+            else:
+                cprint(f"Login successful, welcome {student}",'y')
+                SubjectController(self.db, student).menu()  
+
             break
     def register(self):
         cprint("Student Sign Up",'g')
@@ -55,6 +58,7 @@ class StudentController():# login/register
             email = input("Email: ")
             password = input("Password: ")
             if email == '' or password == '':
+                cprint("Registration cancelled",'y')
                 break
             # validate email and password formats
             email_ok = re.fullmatch(EMAIL_REGEX, email)
@@ -62,17 +66,19 @@ class StudentController():# login/register
             if not email_ok or not pwd_ok:
                 cprint("Format of email or password invalid",'r')
                 continue
+            if self.db.check_student_exists(email):
+                cprint("Email already registered",'r')
+                return
             try:
-                if self.db.check_student_exists(email):
-                    cprint("Email already registered",'r')
-                    continue
-                username = email.split('@', 1)[0]
+                username = input("Name: ")
+                cprint(f"Registering Student {username}",'y')
                 student = self.db.register(username, email, password)
             except ValueError as ve:
                 cprint(str(ve),'r')
                 continue
-            cprint(f"Enrolling Student {student}",'y')
-            SubjectController(self.db, student).menu()
+            else:
+                SubjectController(self.db, student).menu()
+
             break
 
 class SubjectController():# enrol/drop/show/change password
@@ -82,7 +88,7 @@ class SubjectController():# enrol/drop/show/change password
     def menu(self):
         while True:
             input_ = input('\033[96mStudent Course System (c/e/r/s/x):\033[0m')
-            if input_.lower() == 'c': # change
+            if input_.lower() == 'c': # change password
                 self.change_password()
             elif input_.lower() == 'e':# enrol
                 self.enrol()
@@ -95,12 +101,13 @@ class SubjectController():# enrol/drop/show/change password
                 break
             else:
                 cprint("Invalid input",'r')
+
     def enrol(self):
         subid = input("Subject ID: ")
         if subid == '':
             cprint("Enrol cancelled",'y')
             return
-        if subid == '000':
+        if subid == 'r':
             subid = str(random.randint(1,999))
         subid = subid.zfill(3)
         try:
@@ -113,7 +120,7 @@ class SubjectController():# enrol/drop/show/change password
     def remove(self):
         subid = input("Subject ID: ")
         if subid == '':
-            cprint("Drop cancelled",'y')
+            cprint("Remove cancelled",'y')
             return
         if not subid.isdigit():
             cprint("Subject ID invalid",'r')
