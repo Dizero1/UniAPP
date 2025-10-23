@@ -1,5 +1,5 @@
-import student
-from data_manager import Database
+import controller
+from data import Database
 import admin
 
 def menu():
@@ -10,7 +10,7 @@ def menu():
             admin.AdminController(db).menu()
         elif input_.lower() == 's':
             db = Database()
-            student.StudentController(db).menu()
+            controller.StudentController(db).menu()
         elif input_.lower() == 'x':
             print("\033[93mThank you\033[0m")
             break

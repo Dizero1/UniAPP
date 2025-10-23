@@ -6,8 +6,7 @@ DATA_FILE = "students.data"
 
 
 # ---------- Student and Database Class ----------
-from student import Student
-from data_manager import Database
+from data import Database, Student
 # ---------- Main GUI Controller ----------
 class GUIUniApp:
     def __init__(self, master,db: Database):
