@@ -3,6 +3,8 @@ from tkinter import messagebox
 import re
 
 DATA_FILE = "students.data"
+EMAIL_REGEX = r'^[A-Za-z0-9._-]+@university.com$'
+PASSWORD_REGEX = r'^[A-Z][A-Za-z]{4,}[0-9]{3,}$'
 
 
 # ---------- Student and Database Class ----------
@@ -38,7 +40,7 @@ class GUIUniApp:
         if not email or not password:
             messagebox.showerror("Error", "Email and password cannot be empty!")
             return
-        if not re.fullmatch(r'^[A-Za-z0-9._-]+@university.com$',email) or not re.fullmatch(r'^[A-Z][A-Za-z0-9._-]+[0-9]{3}$',password) and len(password)>=5:
+        if not re.fullmatch(EMAIL_REGEX,email) or not re.fullmatch(PASSWORD_REGEX,password) and len(password)>=5:
             messagebox.showerror("Error", "Invalid email format!")
             return
         try:
@@ -103,7 +105,7 @@ class GUIUniApp:
         old_password = self.old_password_entry.get().strip()
         new_password = self.new_password_entry.get().strip()
 
-        if not re.fullmatch(r'^[A-Z][A-Za-z0-9._-]+[0-9]{3}$',new_password) and len(new_password)>=5:
+        if not re.fullmatch(PASSWORD_REGEX,new_password) and len(new_password)>=5:
             messagebox.showerror("Error", "New password format is invalid!")
             return
         try:
