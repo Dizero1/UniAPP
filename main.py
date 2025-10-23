@@ -4,7 +4,7 @@ import admin
 
 def menu():
     while True:
-        input_ = input("University System:(A)dmin, (S)tudent, or X:")
+        input_ = input("\033[96mUniversity System:(A)dmin, (S)tudent, or X:\033[0m")
         if input_.lower() == 'a':
             db = Database()
             admin.AdminController(db).menu()

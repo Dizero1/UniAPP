@@ -1,6 +1,9 @@
 import random
 import re
 from data import Database, Student, Subject
+
+PASSWORD_REGEX = r'^[A-Z][A-Za-z]{4,}[0-9]{3,}$'
+EMAIL_REGEX = r'^[A-Za-z0-9._-]+@university.com$'
 def cprint(text,color:str='default'):
     colors = {
         'default':'\033[0m',
@@ -35,11 +38,11 @@ class StudentController():# login/register
             if email == '' or password == '':
                 cprint("Login cancelled",'y')
                 return
-            email_ok = re.fullmatch(r'^[A-Za-z0-9._-]+@university.com$', email)
-            pwd_ok = re.fullmatch(r'^[A-Z][A-Za-z]{4,}[0-9]{3,}$', password)
+            email_ok = re.fullmatch(EMAIL_REGEX, email)
+            pwd_ok = re.fullmatch(PASSWORD_REGEX, password)
             if not email_ok or not pwd_ok:
                 cprint("Format of email or password invalid",'r')
-                break
+                continue
             try:
                 student = self.db.login(email,password)
                 SubjectController(self.db,student).menu()
@@ -54,8 +57,8 @@ class StudentController():# login/register
             if email == '' or password == '':
                 break
             # validate email and password formats
-            email_ok = re.fullmatch(r'^[A-Za-z0-9._-]+@university.com$', email)
-            pwd_ok = re.fullmatch(r'^[A-Z][A-Za-z]{4,}[0-9]{3,}$', password)
+            email_ok = re.fullmatch(EMAIL_REGEX, email)
+            pwd_ok = re.fullmatch(PASSWORD_REGEX, password)
             if not email_ok or not pwd_ok:
                 cprint("Format of email or password invalid",'r')
                 continue
@@ -97,6 +100,8 @@ class SubjectController():# enrol/drop/show/change password
         if subid == '':
             cprint("Enrol cancelled",'y')
             return
+        if subid == '000':
+            subid = str(random.randint(1,999))
         subid = subid.zfill(3)
         try:
             self.student.enrol(subid)
@@ -110,8 +115,11 @@ class SubjectController():# enrol/drop/show/change password
         if subid == '':
             cprint("Drop cancelled",'y')
             return
+        if not subid.isdigit():
+            cprint("Subject ID invalid",'r')
+            return
         subid = subid.zfill(3)
-        if not subid.isdigit() or len(subid)!=3:
+        if len(subid) != 3:
             cprint("Subject ID invalid",'r')
             return
         try:
@@ -120,22 +128,21 @@ class SubjectController():# enrol/drop/show/change password
             cprint(ve,'r')
         else:
             self.db.datasave(self.student)
-            cprint(f"Dropped {subid} successfully",'y')
     def show_subjects(self):
         cprint(f'showing {len(self.student.subjects)} subjects','y')
         for subject in self.student.subjects.values():
-            cprint(f"[{subject.id}: mark={subject.mark}, grade={subject.grade}]")
+            cprint(f"[{subject.id:<5} | mark={subject.mark:<3} | grade={subject.grade:<2}]")
     def change_password(self):
         old = input("Old password: ")
-        new = input("New password: ")
-        confirm = input("Confirm new password: ")
-        if old == '' or new == '':
+        if old == '':
             cprint("Password change cancelled",'y')
             return
+        new = input("New password: ")
+        confirm = input("Confirm new password: ")
         if new != confirm:
             cprint("Passwords do not match",'r')
             return
-        if not re.fullmatch(r'^[A-Z][A-Za-z]{4,}[0-9]{3,}$',new):
+        if not re.fullmatch(PASSWORD_REGEX, new):
             cprint('Format of password invalid','r')
             return
         try:
@@ -145,7 +152,6 @@ class SubjectController():# enrol/drop/show/change password
         else:
             self.db.datasave(self.student)
             cprint("Password changed successfully",'y')
-        return
     
 if __name__ == "__main__":
     from data import Database
